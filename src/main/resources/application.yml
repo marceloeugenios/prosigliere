@@ -1,0 +1,73 @@
+application:
+  title: API Blog
+  version: v1.2
+
+spring:
+  profiles:
+    active: cloud
+  jackson:
+    default-property-inclusion: non_null
+    deserialization:
+      fail-on-unknown-properties: false
+  security:
+    user:
+      name: challenge
+      password: $2a$10$Fo5tKcwwjOoemAUq9YvePu2zPQ7n2XCQJObFxfARjA6GhIq7OmQji
+  application:
+    name: api-blog
+  threads:
+    virtual:
+      enabled: true
+  jpa:
+    hibernate:
+      ddl-auto: none
+  servlet:
+    multipart:
+      max-request-size: 2MB
+      max-file-size: 2MB
+
+server:
+  port: 8080
+  servlet:
+    context-path: /blog
+  tomcat:
+    max-swallow-size: 2MB
+    max-http-form-post-size: 2MB
+
+management:
+  otlp:
+    metrics:
+      export:
+        enabled: false
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  endpoints:
+    web:
+      exposure:
+        include: "health, metrics, prometheus"
+  endpoint:
+    prometheus:
+      access: read_only
+    health:
+      show-details: always
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+
+app:
+  challenge:
+    url: http://localhost
+  auth:
+    api-token: ${API_BLOG_TOKEN:LKUBv5oNJ8D2hs3LMy0yemrkeEu6bm4SUGryjjr/5o8=}
+
+logging:
+  level:
+    root: INFO
+
+springdoc:
+  swagger-ui:
+    enabled: false
+  api-docs:
+    enabled: true

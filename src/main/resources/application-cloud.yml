@@ -1,0 +1,57 @@
+spring:
+  datasource:
+    url: ${SPRING_DATASOURCE_URL}
+    username: ${SPRING_DATASOURCE_USERNAME}
+    password: ${SPRING_DATASOURCE_PASSWORD}
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+  data:
+    redis:
+      database: 0
+      host: ${SPRING_DATA_REDIS_HOST}
+      password: ${SPRING_DATA_REDIS_PASSWORD}
+      port: 6379
+      timeout: 60s
+      lettuce:
+        pool:
+          enabled: true
+          max-active: 10
+          max-idle: 5
+          min-idle: 3
+        shutdown-timeout: 15s
+
+management:
+  metrics:
+    tags:
+      application: ${spring.application.name}
+  server:
+    port: 45902
+  endpoints:
+    web:
+      exposure:
+        include: "health, metrics, prometheus"
+  prometheus:
+    metrics:
+      export:
+        enabled: true
+  endpoint:
+    prometheus:
+      access: read_only
+    health:
+      show-details: always
+      probes:
+        enabled: true
+  tracing:
+    propagation:
+      type: b3, w3c
+    baggage:
+      enabled: true
+      correlation:
+        enabled: true
+    sampling:
+      probability: 1.0

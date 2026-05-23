@@ -1,0 +1,16 @@
+spring:
+  datasource:
+    url: jdbc:mysql://some-dev-ip:3306/blog_db
+    username: some-dev-user
+    password: some-dev-pass
+    driver-class-name: com.mysql.cj.jdbc.Driver
+  jpa:
+    show-sql: false
+    open-in-view: false
+    properties:
+      hibernate:
+        dialect: org.hibernate.dialect.MySQLDialect
+
+logging:
+  level:
+    root: INFO

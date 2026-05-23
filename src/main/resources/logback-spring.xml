@@ -1,0 +1,53 @@
+<?xml version="1.0" encoding="UTF-8"?>
+
+<configuration>
+
+  <!-- The default logging pattern for this application (includes timestamp, thread ID, trace ID) -->
+  <property name="defaultPattern"
+            value="%d{yyyy-MM-dd HH:mm:ss.SSS} [%thread] [%X{traceId}] [%X{spanId}] %-5level %logger{5} - %msg%n"/>
+
+  <!-- The logging level for the "root" logger (i.e., the default logging level) -->
+  <property name="rootLoggingLevel"
+            value="${LOGGING_LEVEL_ROOT:-INFO}"/>
+
+  <!-- The logging level for logs from OUR application (not libraries) -->
+  <property name="appLoggingLevel"
+            value="${LOGGING_LEVEL_APP:-DEBUG}"/>
+
+  <!-- An appender that prints messages using the default pattern to stdout -->
+  <appender name="STDOUT" class="ch.qos.logback.core.ConsoleAppender" >
+    <encoder>
+      <pattern>${defaultPattern}</pattern>
+    </encoder>
+  </appender>
+
+  <!-- An appender that prints messages as JSON to stdout -->
+  <appender name="STDOUT_JSON" class="ch.qos.logback.core.ConsoleAppender">
+    <encoder class="net.logstash.logback.encoder.LogstashEncoder"/>
+  </appender>
+
+  <appender name="ASYNC" class="ch.qos.logback.classic.AsyncAppender">
+    <appender-ref ref="STDOUT_JSON" />
+    <queueSize>512</queueSize>
+    <discardingThreshold>0</discardingThreshold>
+  </appender>
+
+  <!-- Configuration for logging under local development conditions -->
+  <springProfile name="!cloud">
+    <root level="${rootLoggingLevel}">
+      <appender-ref ref="STDOUT" />
+    </root>
+
+  </springProfile>
+
+  <!-- Configuration for logging under deployment conditions -->
+  <springProfile name="cloud">
+    <root level="${rootLoggingLevel}">
+      <appender-ref ref="ASYNC" />
+    </root>
+
+    <logger additivity="false" level="${appLoggingLevel}" name="br.com.challenge">
+      <appender-ref ref="ASYNC" />
+    </logger>
+  </springProfile>
+</configuration>

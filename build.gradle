@@ -1,0 +1,126 @@
+plugins {
+	id "org.springframework.boot" version "4.0.6"
+	id "io.spring.dependency-management" version "1.1.7"
+	id "com.diffplug.spotless" version "8.5.1"
+	id 'java'
+	id 'jacoco'
+}
+
+group = 'br.com.challenge'
+version = '0.0.1-SNAPSHOT'
+
+java {
+    toolchain {
+        languageVersion = JavaLanguageVersion.of(25)
+    }
+}
+
+configurations {
+	compileOnly {
+		extendsFrom annotationProcessor
+	}
+}
+
+repositories {
+	mavenCentral()
+	maven {
+		url 'https://plugins.gradle.org/m2/'
+	}
+}
+
+tasks.named("bootJar") {
+	enabled = true
+	mainClass = 'br.com.challenge.BlogApplication'
+}
+
+dependencies {
+
+	implementation 'org.springframework.boot:spring-boot-starter-webmvc'
+	implementation 'org.springframework.boot:spring-boot-starter-data-jpa'
+	implementation 'org.springframework.boot:spring-boot-starter-data-redis'
+	implementation 'org.springframework.boot:spring-boot-starter-actuator'
+	implementation 'org.springframework.boot:spring-boot-starter-security'
+	implementation 'org.springframework.boot:spring-boot-starter-validation'
+	implementation 'org.springframework.boot:spring-boot-starter-aspectj'
+
+	implementation("com.mysql:mysql-connector-j:9.6.0") {
+		exclude group: 'com.google.protobuf', module: 'protobuf-java'
+	}
+
+	implementation 'org.flywaydb:flyway-core'
+	implementation 'org.flywaydb:flyway-mysql'
+
+    implementation 'org.springframework.boot:spring-boot-starter-opentelemetry'
+	implementation 'io.micrometer:micrometer-registry-prometheus:1.16.5'
+    implementation 'io.micrometer:micrometer-tracing-bridge-otel:1.6.5'
+
+	implementation 'net.logstash.logback:logstash-logback-encoder:9.0'
+
+	implementation 'org.springdoc:springdoc-openapi-starter-webmvc-ui:3.0.3'
+
+	implementation 'org.mapstruct:mapstruct:1.6.3'
+
+	compileOnly 'org.projectlombok:lombok'
+	annotationProcessor 'org.projectlombok:lombok'
+	annotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+
+	developmentOnly 'org.springframework.boot:spring-boot-docker-compose'
+
+	testImplementation 'org.springframework.boot:spring-boot-testcontainers'
+	testImplementation 'org.testcontainers:testcontainers-mysql'
+	testImplementation 'com.redis:testcontainers-redis'
+
+	testImplementation 'org.springframework.boot:spring-boot-webmvc-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-restclient-test'
+	testImplementation 'org.springframework.boot:spring-boot-starter-micrometer-metrics-test'
+
+	testCompileOnly 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.projectlombok:lombok'
+	testAnnotationProcessor 'org.mapstruct:mapstruct-processor:1.6.3'
+	testImplementation 'org.springframework.boot:spring-boot-starter-test'
+
+}
+
+test {
+	useJUnitPlatform()
+	finalizedBy jacocoTestReport
+}
+
+tasks.withType(JavaCompile).configureEach {
+	options.encoding = 'UTF-8'
+}
+
+spotless {
+	java {
+		googleJavaFormat("1.32.0")
+		target "**/src/main/java/**/*.java", "**/src/test/java/**/*.java"
+	}
+}
+
+jacocoTestReport {
+	dependsOn test
+
+	afterEvaluate {
+		classDirectories.setFrom(files(classDirectories.files.collect {
+			fileTree(dir: it, exclude: [
+					"**/BlogApplication.*",
+					"**/*config/*.*",
+					"**/*dto/*.*",
+					"**/*mapper/*.*",
+					"**/*exception/*.*"
+			])
+		}))
+	}
+	finalizedBy jacocoTestCoverageVerification
+}
+
+jacocoTestCoverageVerification {
+	dependsOn jacocoTestReport
+	violationRules {
+		rule {
+			limit {
+				minimum = 0.9
+			}
+		}
+	}
+}
