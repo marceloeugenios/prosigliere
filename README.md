@@ -131,7 +131,7 @@ Base path: `/blog`
 - **OAuth2 + JWT (Resource Server)** — replace the current API key auth with OAuth2. A dedicated/company authorization server (e.g. Keycloak or Spring Authorization Server) issues signed JWTs on login; the API validates the signature and extracts the user identity from the JWT claims. The `author` UUID on posts and comments would then be populated from the JWT subject instead of the request body, removing the current trust issue where any caller can claim any author identity. This also enables role-based access (e.g. only the post author can delete it) and token scopes without changing the API contract.
 - Photo and file attachments for posts (S3-compatible storage, multipart upload endpoint)
 - Pagination sorting by any column via `sort` and `direction` query parameters and improve `Pageable` handling in the controller
-- Soft deletes for posts and comments
+- Soft deletes for posts and comments or status field with active/inactive states, and a scheduled job to hard delete old inactive records
 - Input sanitisation (HTML escaping)
 - Metrics are already being generated, so next step could be using Prometheus + Grafana
 - CI/CD pipeline with GitHub Actions (build, test, publish image on merge to main)
