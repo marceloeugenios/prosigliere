@@ -53,7 +53,8 @@ All endpoints have example values pre-filled — hit **Try it out** on any opera
 ### Prerequisites
 
 - JDK 25
-- Docker
+- Docker (used to run Redis via `docker-compose.yaml`)
+- MySQL
 
 Flyway runs migrations automatically on startup. Swagger UI is available at:
 
