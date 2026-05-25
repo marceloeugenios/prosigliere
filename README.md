@@ -128,10 +128,20 @@ Base path: `/blog`
 
 ## Next steps
 
+### Auth & security
 - **OAuth2 + JWT (Resource Server)** — replace the current API key auth with OAuth2. A dedicated/company authorization server (e.g. Keycloak or Spring Authorization Server) issues signed JWTs on login; the API validates the signature and extracts the user identity from the JWT claims. The `author` UUID on posts and comments would then be populated from the JWT subject instead of the request body, removing the current trust issue where any caller can claim any author identity. This also enables role-based access (e.g. only the post author can delete it) and token scopes without changing the API contract.
+- Input sanitisation (HTML escaping)
+
+### Entity enhancements
+- **Categories** — many-to-many between `blog_posts` and a new `categories` table (id, name, slug). Enables filtering posts by category (`GET /api/v1/posts?category=tech`) and grouping in the list response. A post can belong to multiple categories.
+- **Tags** — similar to categories but lightweight and user-defined; many-to-many via a `post_tags` join table. Useful for freeform labelling without a curated taxonomy.
+- **Post status** — add a `status` column (`DRAFT`, `PUBLISHED`, `ARCHIVED`) to `blog_posts`. Only `PUBLISHED` posts appear in the public list; authors can retrieve their own drafts. Pairs naturally with the OAuth2 work above since ownership needs to be enforced.
+- **Nested comments (replies)** — self-referential FK `parent_id` on `comments` pointing back to the same table. Enables one level of threaded replies without a separate entity.
+- **Reactions** — a `post_reactions` table (post_id, author UUID, type enum: `LIKE`, `LOVE`, …) with a unique constraint on `(post_id, author)`. Returns an aggregated count per type on the post detail response.
+
+### API & infrastructure
 - Photo and file attachments for posts (S3-compatible storage, multipart upload endpoint)
 - Pagination sorting by any column via `sort` and `direction` query parameters and improve `Pageable` handling in the controller
-- Soft deletes for posts and comments or status field with active/inactive states, and a scheduled job to hard delete old inactive records
-- Input sanitisation (HTML escaping)
+- Soft deletes for posts and comments, or a status field with active/inactive states and a scheduled job to hard-delete old inactive records
 - Metrics are already being generated, so next step could be using Prometheus + Grafana
 - CI/CD pipeline with GitHub Actions (build, test, publish image on merge to main)
