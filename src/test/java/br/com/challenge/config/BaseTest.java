@@ -13,8 +13,7 @@ import tools.jackson.databind.json.JsonMapper;
       "spring.profiles.active=local",
       "management.prometheus.metrics.export.enabled=false",
       "spring.security.user.password=challenge"
-    },
-    webEnvironment = SpringBootTest.WebEnvironment.MOCK)
+    })
 @Import(TestContainerConfig.class)
 public abstract class BaseTest {
 

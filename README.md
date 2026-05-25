@@ -144,4 +144,10 @@ Base path: `/blog`
 - Pagination sorting by any column via `sort` and `direction` query parameters and improve `Pageable` handling in the controller
 - Soft deletes for posts and comments, or a status field with active/inactive states and a scheduled job to hard-delete old inactive records
 - Metrics are already being generated, so next step could be using Prometheus + Grafana
-- CI/CD pipeline with GitHub Actions (build, test, publish image on merge to main)
+
+### CI/CD (GitHub Actions)
+- **CI workflow** (`ci.yml`) — triggered on every push and pull request to `main`: run `./gradlew spotlessCheck` (format gate), `./gradlew test` (Testcontainers requires Docker on the runner, use `ubuntu-latest`), and upload the JaCoCo report as an artifact. Fail fast on format or coverage violations before any review.
+- **Release workflow** (`release.yml`) — triggered on push of a version tag (`v*.*.*`): run CI, then `./gradlew bootJar`, build and push the Docker image to Docker Hub (or GHCR) tagged with the Git tag and `latest`, and create a GitHub Release with the JAR as an attached asset.
+- **Dependabot** — enable `gradle` and `docker` ecosystems in `.github/dependabot.yml` to get automated PRs for dependency upgrades. Pair with the CI workflow so each Dependabot PR is validated automatically.
+- **Branch protection** — require the CI workflow to pass before merging to `main`; enforce at least one review. This makes the format and coverage gates mandatory rather than advisory.
+- **Secret management** — store `DOCKER_USERNAME`, `DOCKER_PASSWORD` (or `GITHUB_TOKEN` for GHCR), and `API_BLOG_TOKEN` as GitHub Actions secrets. Never embed credentials in workflow YAML.
